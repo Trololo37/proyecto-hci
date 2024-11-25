@@ -9,7 +9,7 @@ cap = cv2.VideoCapture(0)
 detector = hand.handDetector()
 
 while True:
-    cap.open(url)
+    cap.open(0)
     ret,img = cap.read()
     if ret:
         img = detector.findHands(img)

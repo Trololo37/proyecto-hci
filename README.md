@@ -1,3 +1,4 @@
+# Sugerido python 3.12 o superior
 # proyecto-hci
 Para el proyecto se requiere un entorno virtual, puedes crear uno ejecutando:
 ```sh
@@ -17,3 +18,4 @@ comando para actualizar las dependencias con las que ya poseías previamente.
 ```sh
 pip freeze > requirements.txt
 ```
+
