@@ -3,9 +3,9 @@ import handDetector as hand
 import time
 import cv2
 
-url = "http://192.168.1.74" #esta es la ip en la que esta la transmisión de video
-cap = cv2.VideoCapture(url)
-
+#url = "http://192.168.1.74" #esta es la ip en la que esta la transmisión de video
+#cap = cv2.VideoCapture(url)
+cap = cv2.VideoCapture(0)
 detector = hand.handDetector()
 
 while True:
