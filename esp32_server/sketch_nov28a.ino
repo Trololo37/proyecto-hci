@@ -71,12 +71,6 @@ void loop() {
     stringComplete = false;        // Resetea el indicador
   }
 }
-void agregarCabecerasCORS()
-{
-  server.sendHeader("Access-Control-Allow-Origin", "*");
-  server.sendHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
-  server.sendHeader("Access-Control-Allow-Headers", "Content-Type");
-}
 
 // Obtiene un parámetro de la solicitud HTTP
 String obtenerParametro(const String &nombre) {
