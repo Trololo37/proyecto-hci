@@ -4,7 +4,7 @@
 #
 import voiceDetector
 import gestos
-import serial, time
+import serial, time, threading
 
 class main():
     def __init__(self):
@@ -21,15 +21,22 @@ class main():
         else:
             print("No response received.")
 
+    def escalator(self, value):
+        mapped_value =  (value) * (255/3)
+        return mapped_value
+
     def main(self):
         while True:
             try:
-                deteccion_por_voz = voiceDetector()
+                deteccion_por_voz = voiceDetector.voiceDetector()
                 foco_seleccionado = deteccion_por_voz.ejecutar()
-                deteccion_por_imagen = gestos()
+                deteccion_por_imagen = gestos.gestos()
                 intensidad = deteccion_por_imagen.ejecutar()
                 if foco_seleccionado and intensidad:
-                    command = f"{foco_seleccionado} {intensidad}"
+                    if foco_seleccionado=='0':
+                        command = '1 0'
+                    else:
+                        command = f"{foco_seleccionado} {self.escalator(intensidad)}"
                     self.send_command(command)
             except Exception as e:
                 print(e)
@@ -38,3 +45,7 @@ class main():
         self.ser.close()
         time.sleep(1)
         print("Ejecución terminada")
+
+if __name__ == '__main__':
+    ejecucion = main()
+    ejecucion.main()
