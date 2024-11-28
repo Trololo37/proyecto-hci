@@ -12,6 +12,7 @@ class voiceDetector():
 
     def nombre_a_numero(self, palabra):
         nombres_a_numeros = {
+            "cero": '0',
             "uno": '1',
             "dos": '2',
             "tres": '3',
@@ -20,13 +21,12 @@ class voiceDetector():
         return nombres_a_numeros.get(palabra.lower(), "Número no reconocido")
 
     def ejecutar(self):
-
         while True:
             try:
                 with sr.Microphone() as source:
                     print('\nHola, soy tu asistente por voz: ')
                     print("Elige entre decir uno, dos, tres o cuatro")
-                    print("para prender los distintos focos, o di salir")
+                    print("para modificar el estado de los distintos \nfocos, o di apagar todos, o di salir")
                     print("Ahora, espera la señal :)")
                     time.sleep(1.5)
                     print("\nDilo ahora")
@@ -49,6 +49,8 @@ class voiceDetector():
                             return '3'
                         elif "cuatro" in text or '4' in text:
                             return '4'
+                        elif "apagar" in text and "todos" in text:
+                            return '0'
                         elif text.strip()=="salir":
                             break
                     except Exception as e:
