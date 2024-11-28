@@ -10,19 +10,19 @@
   
   <label for="foco">Seleccionar foco:</label>
   <select id="foco">
-    <option value="foco1">Foco 1</option>
-    <option value="foco2">Foco 2</option>
-    <option value="foco3">Foco 3</option>
-    <option value="foco4">Foco 4</option>
+    <option value="1">Foco 1</option>
+    <option value="2">Foco 2</option>
+    <option value="3">Foco 3</option>
+    <option value="4">Foco 4</option>
   </select>
 
   <button id="prender">Prender</button>
   <button id="apagar">Apagar</button>
-  <input type="range" id="luminosidad" min="0" max="25" value="25">
-  <button id="cambiarLuminosidad">Cambiar Luminosidad</button>
+  <input type="range" id="luminosidad" min="0" max="255" value="255">
+  <button id="brillo">Cambiar Luminosidad</button>
 
   <script>
-    const ESP32_URL = "http://192.168.100.47"; // Cambia esto por la IP de tu ESP32
+    const ESP32_URL = "http://192.168.1.74"; // Cambia esto por la IP de tu ESP32
 
     function obtenerFocoSeleccionado() {
       return document.getElementById("foco").value;
@@ -31,7 +31,10 @@
     document.getElementById("prender").addEventListener("click", () => {
       const foco = obtenerFocoSeleccionado();
       console.log("foco", foco)
-      fetch(`${ESP32_URL}/prender?foco=${foco}`, { method: "POST" })
+      fetch(`${ESP32_URL}/prender?foco=${foco}`, { 
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: `foco=${foco}`})
         .then(response => response.text())
         .then(data => console.log(data))
         .catch(error => console.error("Error:", error));
@@ -39,16 +42,22 @@
 
     document.getElementById("apagar").addEventListener("click", () => {
       const foco = obtenerFocoSeleccionado();
-      fetch(`${ESP32_URL}/apagar?foco=${foco}`, { method: "POST" })
+      fetch(`${ESP32_URL}/apagar?foco=${foco}`, { 
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: `foco=${foco}`})
         .then(response => response.text())
         .then(data => console.log(data))
         .catch(error => console.error("Error:", error));
     });
 
-    document.getElementById("cambiarLuminosidad").addEventListener("click", () => {
+    document.getElementById("brillo").addEventListener("click", () => {
       const foco = obtenerFocoSeleccionado();
       const valor = document.getElementById("luminosidad").value;
-      fetch(`${ESP32_URL}/luminosidad?foco=${foco}&valor=${valor}`, { method: "POST" })
+      fetch(`${ESP32_URL}/brillo`, { 
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: `foco=${foco}&valor=${valor}`})
         .then(response => response.text())
         .then(data => console.log(data))
         .catch(error => console.error("Error:", error));

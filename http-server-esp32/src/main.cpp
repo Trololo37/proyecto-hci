@@ -1,50 +1,41 @@
 #include <WiFi.h>
 #include <WebServer.h>
-#include <map>
 #include <Arduino.h>
-#include <esp32-hal-gpio.h>
 
-const char *ssid = "tu_red";        // Cambia esto por tu red WiFi
-const char *password = "password"; // Cambia esto por tu contraseña WiFi
+// Configuración de WiFi
+const char *ssid = "uach";        // Cambia esto por tu red WiFi
+//const char *password = ""; // Cambia esto por tu contraseña WiFi
 
-WebServer server(80);
+WebServer server(80); // Servidor web en el puerto 80
 
-// Mapa de focos: Identificador -> Pin GPIO
-std::map<String, int> focos = {
-    {"foco1", 16},
-    {"foco2", 17},
-    {"foco3", 18},
-    {"foco4", 19}};
+// Pines de los LEDs
+const int ledPins[] = {2, 4, 6, 5}; // Cambia estos valores según tu configuración
+const int ledCount = sizeof(ledPins) / sizeof(ledPins[0]);
 
-// Luminosidad por foco (0-25)
-std::map<String, int> luminosidades = {
-    {"foco1", 25},
-    {"foco2", 25},
-    {"foco3", 25},
-    {"foco4", 25}};
+// Estado actual de los LEDs (brillo)
+int ledStates[ledCount] = {0, 0, 0, 0}; // Brillo inicial (todos apagados)
 
-// Canales de PWM para cada foco
-std::map<String, int> canalesPWM = {
-    {"foco1", 0},
-    {"foco2", 1},
-    {"foco3", 2},
-    {"foco4", 3}};
+String inputString = "";      // Almacena el comando recibido
+bool stringComplete = false;  // Indica si el comando está completo
 
-const int frecuenciaPWM = 5000; // Frecuencia del PWM en Hz
-const int resolucionPWM = 8;    // Resolución del PWM (0-25)
+// Prototipos de funciones
+String obtenerParametro(const String &nombre);
+void manejarPrender();
+void manejarApagar();
+void manejarCambiarBrillo();
 
-String obtenerFoco();
-void cambiarLuminosidad();
-void prender();
-void apagar();
+void setup() {
+  Serial.begin(115200);
 
-void setup()
-{
-  Serial.begin(9600);
+  // Configuración de pines como salida
+  for (int i = 0; i < ledCount; i++) {
+    pinMode(ledPins[i], OUTPUT);
+    analogWrite(ledPins[i], 0); // Inicializa todos los LEDs apagados
+  }
+
+  // Configuración de WiFi
   WiFi.begin(ssid, password);
-
-  while (WiFi.status() != WL_CONNECTED)
-  {
+  while (WiFi.status() != WL_CONNECTED) {
     delay(1000);
     Serial.println("Conectando al WiFi...");
   }
@@ -53,104 +44,112 @@ void setup()
   Serial.print("IP: ");
   Serial.println(WiFi.localIP());
 
-  // Configurar pines y canales PWM
-  for (auto &foco : focos)
-  {
-    ledcSetup(canalesPWM[foco.first], frecuenciaPWM, resolucionPWM);
-    ledcAttachPin(foco.second, canalesPWM[foco.first]);
-    ledcWrite(canalesPWM[foco.first], luminosidades[foco.first]); // Luminosidad inicial
-  }
-
-  // Configurar rutas
-  server.on("/prender", HTTP_POST, prender);
-  server.on("/apagar", HTTP_POST, apagar);
-  server.on("/luminosidad", HTTP_POST, cambiarLuminosidad);
+  // Configuración de rutas del servidor web
+  server.on("/prender", HTTP_POST, manejarPrender);
+  server.on("/apagar", HTTP_POST, manejarApagar);
+  server.on("/brillo", HTTP_POST, manejarCambiarBrillo);
 
   server.begin();
-  Serial.println("Servidor iniciado");
+  Serial.println("Servidor web iniciado");
 }
 
-void loop()
-{
-  server.handleClient();
-}
+void loop() {
+  server.handleClient(); // Maneja solicitudes del cliente
 
-// Función auxiliar para obtener el identificador del foco
-String obtenerFoco()
-{
-  if (server.hasArg("foco"))
-  {
-    return server.arg("foco");
+    if (Serial.available()) {  
+    char inChar = Serial.read();   // Lee un carácter
+    inputString += inChar;
+    if (inChar == '\n') {          // Comando completo
+      stringComplete = true;
+    }
   }
-  server.send(400, "text/plain", "Falta el identificador del foco");
+
+  if (stringComplete) {
+    inputString.trim();            // Limpia espacios al inicio y final
+    handleCommand(inputString);    // Procesa el comando recibido
+    inputString = "";              // Limpia el comando
+    stringComplete = false;        // Resetea el indicador
+  }
+}
+
+// Obtiene un parámetro de la solicitud HTTP
+String obtenerParametro(const String &nombre) {
+  if (server.hasArg(nombre)) {
+    return server.arg(nombre);
+  }
+  server.send(400, "text/plain", "Falta el parámetro: " + nombre);
   return "";
 }
 
-// Prender foco
-void prender()
-{
-  String foco = obtenerFoco();
-  if (foco != "" && focos.count(foco))
-  {
-    ledcWrite(canalesPWM[foco], luminosidades[foco]); // Recupera la luminosidad previa
+// Prender un LED con el brillo actual
+void manejarPrender() {
+  String foco = obtenerParametro("foco");
+  int ledIndex = foco.toInt() - 1; // Convierte el foco a índice (0 basado)
+
+  if (ledIndex >= 0 && ledIndex < ledCount) {
+    analogWrite(ledPins[ledIndex], 255); // Usa el brillo actual
     server.send(200, "text/plain", "Foco prendido: " + foco);
-    Serial.println("Foco prendido: " + foco);
-  }
-  else
-  {
+    Serial.printf("Foco %d prendido con brillo %d\n", ledIndex + 1, ledStates[ledIndex]);
+  } else {
     server.send(404, "text/plain", "Foco no encontrado");
-    Serial.println("Foco no encontrado: " + foco);
   }
 }
 
-// Apagar foco
-void apagar()
-{
-  String foco = obtenerFoco();
-  if (foco != "" && focos.count(foco))
-  {
-    ledcWrite(canalesPWM[foco], 0); // Apaga el foco
+// Apagar un LED
+void manejarApagar() {
+  String foco = obtenerParametro("foco");
+  int ledIndex = foco.toInt() - 1; // Convierte el foco a índice (0 basado)
+
+  if (ledIndex >= 0 && ledIndex < ledCount) {
+    analogWrite(ledPins[ledIndex], 0); // Apaga el LED
     server.send(200, "text/plain", "Foco apagado: " + foco);
-    Serial.println("Foco apagado: " + foco);
-  }
-  else
-  {
+    Serial.printf("Foco %d apagado\n", ledIndex + 1);
+  } else {
     server.send(404, "text/plain", "Foco no encontrado");
-    Serial.println("Foco no encontrado: " + foco);
   }
 }
 
-// Cambiar luminosidad
-void cambiarLuminosidad()
-{
-  String foco = obtenerFoco();
-  if (foco != "" && focos.count(foco))
-  {
-    if (server.hasArg("valor"))
-    {
-      int valor = server.arg("valor").toInt();
-      if (valor >= 0 && valor <= 25)
-      {
-        luminosidades[foco] = valor;
-        ledcWrite(canalesPWM[foco], valor);
-        server.send(200, "text/plain", "Luminosidad cambiada: " + foco + " -> " + String(valor));
-        Serial.println("Luminosidad cambiada: " + String(valor));
-      }
-      else
-      {
-        server.send(400, "text/plain", "Valor de luminosidad inválido");
-        Serial.println("Luminosidad no valida: " + String(valor));
-      }
-    }
-    else
-    {
-      server.send(400, "text/plain", "Falta el valor de luminosidad");
-      Serial.println("Luminosidad faltante. ");
-    }
-  }
-  else
-  {
-    server.send(404, "text/plain", "Foco no encontrado");
-    Serial.println("Foco no encontrado: " + foco);
+// Cambiar el brillo de un LED
+void manejarCambiarBrillo() {
+  String foco = obtenerParametro("foco");
+  String valor = obtenerParametro("valor");
+
+  int ledIndex = foco.toInt() - 1;    // Convierte el foco a índice (0 basado)
+  int brillo = valor.toInt();         // Convierte el brillo a entero
+
+  if (ledIndex >= 0 && ledIndex < ledCount && brillo >= 0 && brillo <= 255) {
+    ledStates[ledIndex] = brillo;      // Guarda el brillo en el estado actual
+    analogWrite(ledPins[ledIndex], brillo); // Cambia el brillo del LED
+    server.send(200, "text/plain", "Brillo cambiado: " + foco + " -> " + String(brillo));
+    Serial.printf("Brillo del foco %d cambiado a %d\n", ledIndex + 1, brillo);
+  } else {
+    server.send(400, "text/plain", "Foco o brillo inválido");
   }
 }
+
+void handleCommand(String command) {
+  // Divide el comando en LED e intensidad
+  int spaceIndex = command.indexOf(' ');
+  if (spaceIndex == -1) {
+    Serial.println("Invalid command format. Use '<LED> <BRIGHTNESS>'.");
+    return;
+  }
+
+  String ledPart = command.substring(0, spaceIndex);
+  String brightnessPart = command.substring(spaceIndex + 1);
+
+  int ledIndex = ledPart.toInt() - 1;          // Convierte a índice (0 basado)
+  int brightness = brightnessPart.toInt();    // Convierte a entero
+
+  // Verifica que el LED y la intensidad sean válidos
+  if (ledIndex >= 0 && ledIndex < ledCount && brightness >= 0 && brightness <= 255) {
+    //for (int i = 0; i < ledCount; i++) {
+    //  analogWrite(ledPins[i], 0);  // Apaga todos los LEDs primero
+    //}
+    analogWrite(ledPins[ledIndex], brightness);  // Ajusta el brillo del LED seleccionado
+    Serial.printf("LED %d set to brightness %d.\r\n", ledIndex + 1, brightness);
+  } else {
+    Serial.println("Invalid LED number or brightness. LED: 1-4, Brightness: 0-255.");
+  }
+}
+
