@@ -1,0 +1,8 @@
+.switch-icon{
+    width: unset;
+    height: unset;
+}
+#luminosidad{
+    rotate: 180deg;
+    writing-mode: vertical-lr;
+}
