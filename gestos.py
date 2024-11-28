@@ -28,7 +28,19 @@ class gestos:
             lm_list, b_box = self.detector.findPosition(img)
             if lm_list:
                 fingers = self.detector.fingersUp()
-                if fingers[1] == 1:
+                if fingers[0] == 1:
+                    if all(num == 1 for num in fingers):
+                        if self.comparator(prev_value, curr_value=4):
+                            counter+=1
+                            if counter >= 15:
+                                print("\n\nApagar Foco seleccionado")
+                                #self.cap.release()
+                                cv2.destroyAllWindows()
+                                return '0'
+                        else:
+                            counter=0
+                            prev_value=4
+                elif fingers[1] == 1:
                     if fingers[2]==1:
                         if fingers[3]==1:
                             if fingers[4]==1 or fingers[0]==1:
@@ -39,6 +51,8 @@ class gestos:
                                 counter+=1
                                 if counter >= 10:
                                     print("\nMáxima intensidad")
+                                    #self.cap.release()
+                                    cv2.destroyAllWindows()
                                     return '3'
                             else:
                                 counter=0
@@ -48,6 +62,8 @@ class gestos:
                                 counter+=1
                                 if counter >= 10:
                                     print("\n\nIntensidad media")
+                                    #self.cap.release()
+                                    cv2.destroyAllWindows()
                                     return '2'
                             else:
                                 counter=0
@@ -57,19 +73,12 @@ class gestos:
                             counter+=1
                             if counter >= 10:
                                 print("\n\nIntensidad mínima")
+                                #self.cap.release()
+                                cv2.destroyAllWindows()
                                 return '1'
                         else:
                             counter=0
                             prev_value=1
-                elif all(num == 1 for num in fingers):
-                    if self.comparator(prev_value, curr_value=4):
-                        counter+=1
-                        if counter >= 15:
-                            print("\n\nApagar Foco seleccionado")
-                            return '0'
-                    else:
-                        counter=0
-                        prev_value=4
                 elif all(num == 0 for num in fingers):
                     if self.comparator(prev_value, curr_value=4):
                         counter+=1

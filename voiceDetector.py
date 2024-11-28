@@ -43,14 +43,14 @@ class voiceDetector():
                             return texto
                         elif "uno" in text or '1' in text:
                             return '1'
+                        elif "apagar" in text.lower() and "todos" in text:
+                            return '0'
                         elif "dos" in text or '2' in text:
                             return '2'
                         elif "tres" in text or '3' in text:
                             return '3'
                         elif "cuatro" in text or '4' in text:
                             return '4'
-                        elif "apagar" in text and "todos" in text:
-                            return '0'
                         elif text.strip()=="salir":
                             break
                     except Exception as e:

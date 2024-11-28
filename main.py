@@ -42,7 +42,14 @@ class Main:
                     print("Iniciando detección por voz...")
                     resultado_voz = self.wrapper("voz")
                     self.valores.append(resultado_voz)
-                    
+                
+                if (self.valores[0]=='0'):
+                    for i in range(1,5):
+                        command = f"{str(i)} {'0'}"
+                        self.send_command(command)
+                    verificadorX=False
+                    self.valores.clear()
+                    continue
 
                 # Paso 2: Detección por imagen
                 if not verificadorY:
@@ -59,9 +66,9 @@ class Main:
                     else:
                         command = f"{self.valores[0]} {self.escalator(int(self.valores[1]))}"
                     self.send_command(command)
-                    verificadorX=False
-                    verificadorY=False
-
+                
+                verificadorX=False
+                verificadorY=False
                 # Limpiar valores para el siguiente ciclo
                 self.valores.clear()
         except KeyboardInterrupt:
