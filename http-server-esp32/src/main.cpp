@@ -4,8 +4,8 @@
 #include <Arduino.h>
 #include <esp32-hal-gpio.h>
 
-const char *ssid = "tu_red";        // Cambia esto por tu red WiFi
-const char *password = "password"; // Cambia esto por tu contraseña WiFi
+const char *ssid = "Fam. Gonzaminguez";        // Cambia esto por tu red WiFi
+const char *password = "Fe18Ad24Da30Al17Lu01"; // Cambia esto por tu contraseña WiFi
 
 WebServer server(80);
 
@@ -16,12 +16,12 @@ std::map<String, int> focos = {
     {"foco3", 18},
     {"foco4", 19}};
 
-// Luminosidad por foco (0-25)
+// Luminosidad por foco (0-255)
 std::map<String, int> luminosidades = {
-    {"foco1", 25},
-    {"foco2", 25},
-    {"foco3", 25},
-    {"foco4", 25}};
+    {"foco1", 255},
+    {"foco2", 255},
+    {"foco3", 255},
+    {"foco4", 255}};
 
 // Canales de PWM para cada foco
 std::map<String, int> canalesPWM = {
@@ -35,8 +35,9 @@ const int resolucionPWM = 8;    // Resolución del PWM (0-25)
 
 String obtenerFoco();
 void cambiarLuminosidad();
-void prender();
+void encender();
 void apagar();
+void agregarCabecerasCORS();
 
 void setup()
 {
@@ -62,7 +63,7 @@ void setup()
   }
 
   // Configurar rutas
-  server.on("/prender", HTTP_POST, prender);
+  server.on("/encender", HTTP_POST, encender);
   server.on("/apagar", HTTP_POST, apagar);
   server.on("/luminosidad", HTTP_POST, cambiarLuminosidad);
 
@@ -73,6 +74,12 @@ void setup()
 void loop()
 {
   server.handleClient();
+}
+void agregarCabecerasCORS()
+{
+  server.sendHeader("Access-Control-Allow-Origin", "*");
+  server.sendHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
+  server.sendHeader("Access-Control-Allow-Headers", "Content-Type");
 }
 
 // Función auxiliar para obtener el identificador del foco
@@ -86,9 +93,10 @@ String obtenerFoco()
   return "";
 }
 
-// Prender foco
-void prender()
+// encender foco
+void encender()
 {
+  agregarCabecerasCORS();
   String foco = obtenerFoco();
   if (foco != "" && focos.count(foco))
   {
@@ -106,6 +114,7 @@ void prender()
 // Apagar foco
 void apagar()
 {
+  agregarCabecerasCORS();
   String foco = obtenerFoco();
   if (foco != "" && focos.count(foco))
   {
@@ -123,13 +132,14 @@ void apagar()
 // Cambiar luminosidad
 void cambiarLuminosidad()
 {
+  agregarCabecerasCORS();
   String foco = obtenerFoco();
   if (foco != "" && focos.count(foco))
   {
     if (server.hasArg("valor"))
     {
       int valor = server.arg("valor").toInt();
-      if (valor >= 0 && valor <= 25)
+      if (valor >= 0 && valor <= 255)
       {
         luminosidades[foco] = valor;
         ledcWrite(canalesPWM[foco], valor);
