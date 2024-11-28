@@ -60,3 +60,7 @@ class voiceDetector():
                 print("Cancelacion con teclado")
                 break 
         print("La detección por voz fue cancelada")       
+
+#if __name__ == '__main__':
+#    x = voiceDetector()
+#    x.ejecutar()

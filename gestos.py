@@ -100,6 +100,6 @@ class gestos:
         else:
             return False
 
-if __name__ == '__main__':
-    x = gestos()
-    x.ejecutar()
+#if __name__ == '__main__':
+#    x = gestos()
+#    x.ejecutar()
