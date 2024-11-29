@@ -3,8 +3,8 @@
 #include <Arduino.h>
 
 // Configuración de WiFi
-const char *ssid = "uach";        // Cambia esto por tu red WiFi
-const char *password = ""; // Cambia esto por tu contraseña WiFi
+const char *ssid = "Fam. Gonzaminguez";        // Cambia esto por tu red WiFi
+const char *password = "Fe18Ad24Da30Al17Lu01"; // Cambia esto por tu contraseña WiFi
 
 WebServer server(80); // Servidor web en el puerto 80
 
@@ -205,8 +205,9 @@ void handleCommand(String command)
     // for (int i = 0; i < ledCount; i++) {
     //   analogWrite(ledPins[i], 0);  // Apaga todos los LEDs primero
     // }
-    analogWrite(ledPins[ledIndex], brightness); // Ajusta el brillo del LED seleccionado
-    Serial.printf("LED %d set to brightness %d.\r\n", ledIndex + 1, brightness);
+    ledStates[ledIndex]=brightness;
+    analogWrite(ledPins[ledIndex], ledStates[ledIndex]); // Ajusta el brillo del LED seleccionado
+    Serial.printf("LED %d set to brightness %d.\r\n", ledIndex + 1, ledStates[ledIndex]);
   }
   else
   {

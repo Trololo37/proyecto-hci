@@ -102,4 +102,4 @@ document.querySelectorAll("input[type='range']").forEach((slider) => {
 syncState();
 
 // Sincronizar el estado cada 10 segundos
-setInterval(syncState, 5000);
+setInterval(syncState, 2000);

@@ -47,15 +47,15 @@ class voiceDetector():
         print("Cancelacion por voz")    
 
     def esperandoSeleccionDeLuz(self):
-        print("\nFocos disponibles:")
-        print("\n1) UNO")
-        print("\n2) DOS")
-        print("\n3) TRES")
-        print("\n4) CUATRO")
-        print("\nComandos:")
-        print("\nAPAGAR TODOS")
-        print("\nCONFIRMAR")
-        print("\nCANCELAR")
+        print("Focos disponibles:")
+        print("1) UNO")
+        print("2) DOS")
+        print("3) TRES")
+        print("4) CUATRO")
+        print("Comandos:")
+        print("APAGAR TODOS")
+        print("CONFIRMAR")
+        print("CANCELAR")
         while True:
             try:
                 with sr.Microphone() as source:
