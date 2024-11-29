@@ -3,8 +3,8 @@
 #include <Arduino.h>
 
 // Configuración de WiFi
-const char *ssid = "Fam. Gonzaminguez";        // Cambia esto por tu red WiFi
-const char *password = "Fe18Ad24Da30Al17Lu01"; // Cambia esto por tu contraseña WiFi
+const char *ssid = "uach";        // Cambia esto por tu red WiFi
+const char *password = ""; // Cambia esto por tu contraseña WiFi
 
 WebServer server(80); // Servidor web en el puerto 80
 
