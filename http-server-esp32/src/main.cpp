@@ -3,8 +3,8 @@
 #include <Arduino.h>
 
 // Configuración de WiFi
-const char *ssid = "Fam. Gonzaminguez";        // Cambia esto por tu red WiFi
-const char *password = "Fe18Ad24Da30Al17Lu01"; // Cambia esto por tu contraseña WiFi
+const char *ssid = "uach";        // Cambia esto por tu red WiFi
+const char *password = ""; // Cambia esto por tu contraseña WiFi
 
 WebServer server(80); // Servidor web en el puerto 80
 
@@ -13,7 +13,7 @@ const int ledPins[] = {13, 12, 14, 27}; // Cambia estos valores según tu config
 const int ledCount = sizeof(ledPins) / sizeof(ledPins[0]);
 
 // Estado actual de los LEDs (brillo)
-int ledStates[ledCount] = {0, 255, 0, 0}; // Brillo inicial (todos apagados)
+int ledStates[ledCount] = {0, 0, 0, 0}; // Brillo inicial (todos apagados)
 
 String inputString = "";     // Almacena el comando recibido
 bool stringComplete = false; // Indica si el comando está completo
