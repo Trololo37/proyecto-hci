@@ -124,13 +124,11 @@ void manejarPrender()
 {
   String foco = obtenerParametro("foco");
   int ledIndex = foco.toInt(); // Convierte el foco a índice (0 basado)
-  Serial.println("INTENTO DE PRENDER " + foco);
 
   agregarCabecerasCORS();
   if (ledIndex >= 0 && ledIndex < ledCount)
   {
     ledStates[ledIndex] = 255;
-    Serial.println("LUMINOSIDAD: " + ledStates[ledIndex]);
 
     analogWrite(ledPins[ledIndex], ledStates[ledIndex]); // Usa el brillo actual
     server.send(200, "text/plain", "Foco encendido: " + foco);

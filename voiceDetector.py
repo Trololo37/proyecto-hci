@@ -9,7 +9,8 @@ class voiceDetector():
     def __init__(self):
         self.r = sr.Recognizer() 
         time.sleep(0.5)
-
+        self.state='inactive'
+    
     def nombre_a_numero(self, palabra):
         nombres_a_numeros = {
             "cero": '0',
@@ -19,45 +20,81 @@ class voiceDetector():
             "cuatro": '4',
         }
         return nombres_a_numeros.get(palabra.lower(), "Número no reconocido")
-
-    def ejecutar(self):
+    
+    def esperandoComando(self):
+        print("Di LUCES")
         while True:
             try:
                 with sr.Microphone() as source:
-                    print('\nHola, soy tu asistente por voz: ')
-                    print("Elige entre decir uno, dos, tres o cuatro")
-                    print("para modificar el estado de los distintos \nfocos, o di apagar todos, o di salir")
-                    print("Ahora, espera la señal :)")
-                    time.sleep(1.5)
-                    print("\nDilo ahora")
+                    
+                    # print("\nDilo ahora")
                     audio = self.r.listen(source)
                     try:
-                        print("\n\nTraduciendo")
+                        # print("\n\nComando introducido")
                         text = self.r.recognize_google(audio, language="es")
                         print('Has dicho: {}'.format(text))
                         user_input = str(text).strip()
-                        texto = self.nombre_a_numero(user_input)
-                        time.sleep(0.5)
-
-                        if texto in ['1', '2', '3', '4']:
-                            return texto
-                        elif "uno" in text or '1' in text:
-                            return '1'
-                        elif "apagar" in text.lower() and "todos" in text:
-                            return '0'
-                        elif "dos" in text or '2' in text:
-                            return '2'
-                        elif "tres" in text or '3' in text:
-                            return '3'
-                        elif "cuatro" in text or '4' in text:
-                            return '4'
-                        elif text.strip()=="salir":
-                            break
                     except Exception as e:
-                        print('No te he entendido')
-                        print(e)
+                        print('No logro entenderte')
+                        continue
+                        
+                    if 'luces' in user_input.lower(): 
+                        return 'luces'
+                    
+            except KeyboardInterrupt:
+                print("Cancelacion con teclado")
+                break 
+        print("Cancelacion por voz")    
+
+    def esperandoSeleccionDeLuz(self):
+        print("\nFocos disponibles:")
+        print("\n1) UNO")
+        print("\n2) DOS")
+        print("\n3) TRES")
+        print("\n4) CUATRO")
+        print("\nComandos:")
+        print("\nAPAGAR TODOS")
+        print("\nCONFIRMAR")
+        print("\nCANCELAR")
+        while True:
+            try:
+                with sr.Microphone() as source:
+                    
+                    # print("\nDilo ahora")
+                    audio = self.r.listen(source)
+                    try:
+                        # print("\n\nComando introducido")
+                        text = self.r.recognize_google(audio, language="es")
+                        print('Has dicho: {}'.format(text))
+                        user_input = str(text).strip()
+                    except Exception as e:
+                        print('No logro entenderte')
+                        continue
+                    
+                    if 'confirmar' in user_input.lower(): 
+                        return 'confirmar'
+                    elif 'cancelar' in user_input.lower(): 
+                        return 'cancelar'
+                    
+                    texto = self.nombre_a_numero(user_input)
+                    time.sleep(0.5)
+
+                    if texto in ['1', '2', '3', '4']:
+                        return texto
+                    elif "uno" in text.lower() or '1' in text.lower():
+                        return '1'
+                    elif "apagar" in text.lower() and "todos" in text.lower():
+                        return '0'
+                    elif "dos" in text.lower() or '2' in text.lower():
+                        return '2'
+                    elif "tres" in text.lower() or '3' in text.lower():
+                        return '3'
+                    elif "cuatro" in text.lower() or '4' in text.lower():
+                        return '4'
+                    elif text.strip()=="salir":
+                        break
                     time.sleep(0.1)
-                    #os.system('cls' if os.name=='nt' else 'clear')
+                    
             except KeyboardInterrupt:
                 print("Cancelacion con teclado")
                 break 
