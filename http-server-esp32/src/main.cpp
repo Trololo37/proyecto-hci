@@ -9,7 +9,7 @@ const char *password = ""; // Cambia esto por tu contraseña WiFi
 WebServer server(80); // Servidor web en el puerto 80
 
 // Pines de los LEDs
-const int ledPins[] = {13, 12, 14, 27}; // Cambia estos valores según tu configuración
+const int ledPins[] = {26, 27, 12, 13 }; // Cambia estos valores según tu configuración
 const int ledCount = sizeof(ledPins) / sizeof(ledPins[0]);
 
 // Estado actual de los LEDs (brillo)
@@ -25,6 +25,7 @@ void manejarApagar();
 void manejarCambiarBrillo();
 void handleCommand(String command);
 void manejarEstado();
+void manejarOK();
 
 void setup()
 {
@@ -52,6 +53,7 @@ void setup()
   server.on("/prender", HTTP_POST, manejarPrender);
   server.on("/apagar", HTTP_POST, manejarApagar);
   server.on("/brillo", HTTP_POST, manejarCambiarBrillo);
+  server.on("/", HTTP_GET, manejarOK);
   server.on("/estado", HTTP_GET, manejarEstado);
 
   server.begin();
@@ -85,6 +87,12 @@ void agregarCabecerasCORS()
   server.sendHeader("Access-Control-Allow-Origin", "*");
   server.sendHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
   server.sendHeader("Access-Control-Allow-Headers", "Content-Type");
+}
+
+void manejarOK(){
+  agregarCabecerasCORS();
+  Serial.println("Solicitud OK");
+  server.send(200, "text/plain", "OK");
 }
 
 // Nuevo endpoint para obtener el estado de los LEDs

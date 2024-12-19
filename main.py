@@ -43,7 +43,7 @@ class Main:
             if self.esperarComando:
                 self.esperarComando = False
                 self.valores.clear()
-                # print("Iniciando detección de comando...")
+                print("Esperando comando...")
                 resultado_voz = self.wrapper("comando")
                 if resultado_voz == 'luces':
                     self.esperarSeleccionDeLuz = True
@@ -54,7 +54,7 @@ class Main:
 
             if self.esperarSeleccionDeLuz:
                 self.esperarSeleccionDeLuz = False
-                # print("Iniciando detección de luz...")
+                print("Esperando accion...")
                 resultado_voz = self.wrapper("luz")
                 
                 if resultado_voz == 'confirmar':

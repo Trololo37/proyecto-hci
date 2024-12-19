@@ -26,7 +26,6 @@ class voiceDetector():
         while True:
             try:
                 with sr.Microphone() as source:
-                    
                     # print("\nDilo ahora")
                     audio = self.r.listen(source)
                     try:
